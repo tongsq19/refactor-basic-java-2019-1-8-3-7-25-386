@@ -5,29 +5,35 @@ import java.util.List;
 
 public class Receipt {
 
-    public Receipt() {
-        tax = new BigDecimal(0.1);
-        tax = tax.setScale(2, BigDecimal.ROUND_HALF_UP);
-    }
-
     private BigDecimal tax;
 
+    public Receipt() {
+        tax = new BigDecimal(0.1).setScale(2, BigDecimal.ROUND_HALF_UP);
+    }
+
+
     public double CalculateGrandTotal(List<Product> products, List<OrderItem> items) {
+
         BigDecimal subTotal = calculateSubtotal(products, items);
 
+        BigDecimal grandTotal = calulateGrandTotal(products, items, subTotal);
+
+        return grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    private BigDecimal calulateGrandTotal(List<Product> products, List<OrderItem> items, BigDecimal subTotal) {
         for (Product product : products) {
             OrderItem curItem = findOrderItemByProduct(items, product);
 
             BigDecimal reducedPrice = product.getPrice()
-                    .multiply(product.getDiscountRate())
-                    .multiply(new BigDecimal(curItem.getCount()));
+                    .multiply(new BigDecimal(curItem.getCount()))
+                    .multiply(product.getDiscountRate());
 
             subTotal = subTotal.subtract(reducedPrice);
         }
         BigDecimal taxTotal = subTotal.multiply(tax);
         BigDecimal grandTotal = subTotal.add(taxTotal);
-
-        return grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return grandTotal;
     }
 
 
