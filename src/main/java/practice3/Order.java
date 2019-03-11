@@ -16,24 +16,38 @@ public class Order {
     }
 
     public BigDecimal calculate() {
-        BigDecimal subTotal = new BigDecimal(0);
+        calculations calculations = new calculations().invoke();
+        return calculations.getGrandTotal();
+    }
 
-        // Total up line items
-        for (OrderLineItem lineItem : orderLineItemList) {
-            subTotal = subTotal.add(lineItem.getPrice());
+
+    private class calculations {
+
+        private BigDecimal taxTotal = new BigDecimal(0);
+        private BigDecimal grandTotal = new BigDecimal(0);
+        private BigDecimal subTotal = new BigDecimal(0);
+
+        public BigDecimal getGrandTotal() {
+            return grandTotal;
         }
 
-        // Subtract discounts
-        for (BigDecimal discount : discounts) {
-            subTotal = subTotal.subtract(discount);
+        public calculations invoke() {
+            // Total up line items
+            for (OrderLineItem lineItem : orderLineItemList) {
+                subTotal = subTotal.add(lineItem.getPrice());
+            }
+
+            // Subtract discounts
+            for (BigDecimal discount : discounts) {
+                subTotal = subTotal.subtract(discount);
+            }
+
+            // calculate TaxTotal
+            taxTotal = subTotal.multiply(tax);
+
+            // calculate GrandTotal
+            grandTotal = subTotal.add(taxTotal);
+            return this;
         }
-
-        // calculate tax
-        BigDecimal tax = subTotal.multiply(this.tax);
-
-        // calculate GrandTotal
-        BigDecimal grandTotal = subTotal.add(tax);
-
-        return grandTotal;
     }
 }
