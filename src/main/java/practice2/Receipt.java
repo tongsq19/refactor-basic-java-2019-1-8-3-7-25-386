@@ -23,17 +23,22 @@ public class Receipt {
 
     private BigDecimal calulateGrandTotal(List<Product> products, List<OrderItem> items, BigDecimal subTotal) {
         for (Product product : products) {
-            OrderItem curItem = findOrderItemByProduct(items, product);
 
-            BigDecimal reducedPrice = product.getPrice()
-                    .multiply(new BigDecimal(curItem.getCount()))
-                    .multiply(product.getDiscountRate());
+            BigDecimal reducedPrice = getReducedPrice(product, items);
 
             subTotal = subTotal.subtract(reducedPrice);
         }
         BigDecimal taxTotal = subTotal.multiply(tax);
         BigDecimal grandTotal = subTotal.add(taxTotal);
         return grandTotal;
+    }
+
+    private BigDecimal getReducedPrice(Product product, List<OrderItem> items) {
+        OrderItem curItem = findOrderItemByProduct(items, product);
+
+        return product.getPrice()
+                .multiply(new BigDecimal(curItem.getCount()))
+                .multiply(product.getDiscountRate());
     }
 
 
